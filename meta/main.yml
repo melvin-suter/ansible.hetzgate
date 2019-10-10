@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: Melvin Suter
+  company: 
+  description: Install & Configure a full webstack
+  role_name: hetzgate
+  min_ansible_version: 2.4
+  license: GPL
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  galaxy_tags:
+  - webserver
+  - httpd
+  - webstack
+
+dependencies:
+- role: "uniqconsulting.mariadb"
+  vars:
+      mariadb_secure_installation: yes

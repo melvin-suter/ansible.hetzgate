@@ -1,0 +1,25 @@
+---
+
+# --- webstack ---
+httpd_server_admin: "webmaster@example.com"
+webstack_handle_selinux: true
+
+# --- php ---
+php_versions:
+- 56
+- 72
+- 73
+
+php_packages:
+- php
+- php-cli
+- php-fpm
+- php-mysqlnd
+- php-pdo
+- php-gd
+- php-pecl-zip
+- php-yaml
+- php-json
+
+
+...

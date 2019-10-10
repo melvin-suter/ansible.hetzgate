@@ -1,0 +1,23 @@
+---
+# ansible.web_stack/tasks/main.yml
+- import_tasks: include-vars.yml
+  tags: ['web_stack']
+
+# nginx installation
+- import_tasks: nginx.yml
+  tags: ['web_stack','web_stack.nginx']
+
+# httpd installation
+- import_tasks: httpd.yml
+  tags: ['web_stack','web_stack.httpd']
+
+# php installation
+- import_tasks: php.yml
+  tags: ['web_stack','web_stack.php']
+
+# git installation
+- import_tasks: git.yml
+  tags: ['web_stack','web_stack.git']
+
+
+...

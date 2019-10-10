@@ -1,0 +1,39 @@
+---
+
+- name: Install nginx
+  yum:
+    name: "{{ nginx_packages }}"
+    state: present
+
+- name: Create user "{{ nginx_user }}"
+  user:
+    name: "{{ nginx_user }}"
+    shell: /bin/false
+    create_home: false
+    system: true
+    state: present
+
+- name: Create Log dir
+  file:
+    state: directory
+    path: "{{ nginx_dir_logs }}"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: "0750"
+
+- name: Generate nginx config file
+  template:
+    src: templates/nginx.conf.j2
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    dest: "{{ nginx_conf_path }}"
+    mode: 0640
+
+- name: Create self-signed certificate as placeholder
+  command: >
+    openssl req -x509 -nodes -subj '/CN=localhost' -days 3650
+    -newkey rsa:4096 -sha256 -keyout {{ nginx_ssl_key }} -out {{ nginx_ssl_cert }}
+    creates={{ nginx_ssl_cert }}
+
+
+...

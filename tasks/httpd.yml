@@ -1,0 +1,102 @@
+---
+
+- name: Install Apache
+  yum:
+    name: "{{ httpd_packages }}"
+    state: present
+
+- name: Create user "{{ httpd_user }}"
+  user:
+    name: "{{ httpd_user }}"
+    # group: "{{ httpd_group }}"
+    shell: /bin/false
+    create_home: false
+    system: true
+    state: present
+
+
+- name: Create Apache conf dir
+  file:
+    state: directory
+    path: "{{ httpd_conf_dir }}"
+    owner: root
+    group: root
+    mode: '0750'
+    recurse: yes
+
+- name: Create Apache vhosts dir
+  file:
+    state: directory
+    path: "{{ httpd_dir_vhosts }}"
+    owner: "{{ httpd_user }}"
+    group: "{{ httpd_group }}"
+    mode: '4750'
+    recurse: yes
+
+- name: Config selinux on Apache vhosts dir
+  sefcontext:
+    target: "{{ httpd_dir_vhosts }}/.*/www(/.*)?"
+    setype: httpd_sys_rw_content_t
+    state: present
+  when: "webstack_handle_selinux == true"
+
+- name: Config selinux on Apache log dir
+  sefcontext:
+    target: "{{ httpd_dir_vhosts }}/.*/logs(/.*)?"
+    setype: httpd_log_t
+    state: present
+  when: "webstack_handle_selinux == true"
+
+- name: Config selinux on Apache vhosts dir
+  sefcontext:
+    target: "{{ httpd_dir_vhosts }}/.*/ssl(/.*)?"
+    setype: cert_t
+    state: present
+  when: "webstack_handle_selinux == true"
+
+
+
+- name: Create Log dir
+  file:
+    state: directory
+    path: "{{ httpd_dir_logs }}"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Create Log dir
+  file:
+    state: directory
+    path: "{{ httpd_dir_logs }}/logs"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Config selinux on Apache log dir
+  sefcontext:
+    target: "{{ httpd_dir_logs }}(/.*)?"
+    setype: httpd_log_t
+    state: present
+  when: "webstack_handle_selinux == true"
+
+- name: Apply new SELinux file context to filesystem
+  command: restorecon -irv /srv/git_repos
+  when: "webstack_handle_selinux == true"
+  
+- name: Generate Apache config file
+  template:
+    src: templates/httpd.conf.j2
+    owner: "{{ httpd_user }}"
+    group: "{{ httpd_group }}"
+    dest: "{{ httpd_conf_path }}"
+    mode: 0640
+
+- name: Create self-signed certificate as placeholder
+  command: >
+    openssl req -x509 -nodes -subj '/CN=localhost' -days 3650
+    -newkey rsa:4096 -sha256 -keyout {{ httpd_ssl_key }} -out {{ httpd_ssl_cert }}
+    creates={{ httpd_ssl_cert }}
+
+
+
+...
