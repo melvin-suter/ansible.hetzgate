@@ -20,6 +20,7 @@ php_packages:
 - php-pecl-zip
 - php-yaml
 - php-json
-
+- php-mbstring
+- php-xml
 
 ...
